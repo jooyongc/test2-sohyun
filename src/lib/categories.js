@@ -32,4 +32,13 @@ export function gradient(cat) {
 }
 
 // Areas shown in the Home "Areas" filter row (in addition to "All Seoul").
-export const DISTRICTS = ['Hongdae', 'Euljiro', 'Seongsu', 'Dongdaemun', 'Jongno', 'Itaewon']
+export const DISTRICTS = [
+  'Hongdae',
+  'Euljiro',
+  'Seongsu',
+  'Dongdaemun',
+  'Jongno',
+  'Itaewon',
+  'Yeouido',
+  'Myeongdong',
+]

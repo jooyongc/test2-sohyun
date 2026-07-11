@@ -7,7 +7,15 @@ import { MODELS, DEFAULT_MODEL, modelLabel, formatUsd } from '../lib/claudeModel
 import { generateDraft } from '../lib/aiClient'
 import { recordUsage } from '../hooks/useAiUsage'
 
-const EMPTY = { title: '', location: '', district: '', category: '', content: '', images: [] }
+const EMPTY = {
+  title: '',
+  location: '',
+  district: '',
+  category: '',
+  map_url: '',
+  content: '',
+  images: [],
+}
 
 export default function PostEditor() {
   const { id } = useParams() // present when editing
@@ -35,6 +43,7 @@ export default function PostEditor() {
             location: data.location ?? '',
             district: data.district ?? '',
             category: data.category ?? '',
+            map_url: data.map_url ?? '',
             content: data.content ?? '',
             images: data.images ?? [],
           })
@@ -88,6 +97,7 @@ export default function PostEditor() {
       location: form.location.trim() || null,
       district: form.district || null,
       category: form.category || null,
+      map_url: form.map_url.trim() || null,
       content: form.content.trim() || null,
       images: form.images,
       cover_image_url: form.images[0] ?? null,
@@ -134,6 +144,20 @@ export default function PostEditor() {
             placeholder="e.g. Yeonnam-dong 239-11"
             className="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">Google Maps URL</label>
+          <input
+            type="url"
+            value={form.map_url}
+            onChange={update('map_url')}
+            placeholder="https://maps.app.goo.gl/…  or  https://www.google.com/maps/…"
+            className="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          />
+          <p className="mt-1 text-xs text-neutral-400">
+            Paste a Google Maps share link — a “View on Google Maps” button appears on the post.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

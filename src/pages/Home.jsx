@@ -25,6 +25,7 @@ export default function Home() {
   )
   const gridPosts = filtered.filter((p) => !featured || p.id !== featured.id)
   const featuredCat = featured ? getCategory(featured.category) : null
+  const featuredCover = featured ? featured.cover_image_url || featured.images?.[0] : null
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -53,20 +54,36 @@ export default function Home() {
           {featured ? (
             <Link
               to={`/posts/${featured.id}`}
-              className="relative flex min-h-[260px] flex-col justify-end p-8 text-white"
-              style={{ background: 'linear-gradient(150deg,#e11d48,#9f1239)' }}
+              className="group relative flex aspect-square flex-col justify-end overflow-hidden p-8 text-white"
+              style={featuredCover ? undefined : { background: 'linear-gradient(150deg,#e11d48,#9f1239)' }}
             >
-              <span className="absolute right-7 top-5 font-mono text-6xl font-bold opacity-[0.35]">
+              {featuredCover && (
+                <>
+                  {/* center 1:1 crop of the post's image */}
+                  <img
+                    src={featuredCover}
+                    alt={featured.title}
+                    className="absolute inset-0 h-full w-full object-cover object-center transition duration-300 group-hover:scale-[1.03]"
+                  />
+                  {/* scrim keeps the title readable over the photo */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5" />
+                </>
+              )}
+              <span className="pointer-events-none absolute right-7 top-5 font-mono text-6xl font-bold opacity-30">
                 01
               </span>
-              <span className="mb-3.5 self-start rounded-full bg-white px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
-                Editor's pick
-              </span>
-              <h2 className="m-0 text-[26px] font-bold leading-[1.05]">{featured.title}</h2>
-              <p className="mt-2.5 text-[13px] opacity-85">
-                📍 {featured.location || featured.district || 'Seoul'}
-                {featured.category ? ` · ${featuredCat.label}` : ''}
-              </p>
+              <div className="relative">
+                <span className="mb-3.5 inline-block rounded-full bg-white px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
+                  Editor's pick
+                </span>
+                <h2 className="m-0 text-[26px] font-bold leading-[1.05] [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]">
+                  {featured.title}
+                </h2>
+                <p className="mt-2.5 text-[13px] opacity-90 [text-shadow:0_1px_6px_rgba(0,0,0,0.4)]">
+                  📍 {featured.location || featured.district || 'Seoul'}
+                  {featured.category ? ` · ${featuredCat.label}` : ''}
+                </p>
+              </div>
             </Link>
           ) : (
             <div

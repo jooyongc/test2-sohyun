@@ -15,6 +15,7 @@ create table if not exists public.posts (
   category        text,                          -- e.g. 'eats','cafes','streets','music','shops','outdoors'
   cover_image_url text,
   images          text[] not null default '{}',
+  map_url         text,                          -- Google Maps link
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );

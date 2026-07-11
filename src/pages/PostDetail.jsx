@@ -92,6 +92,16 @@ export default function PostDetail() {
               })}
             </span>
           </div>
+          {post.map_url && (
+            <a
+              href={post.map_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-[12px] font-semibold text-ink hover:bg-white"
+            >
+              🗺️ View on Google Maps ↗
+            </a>
+          )}
         </header>
 
         {/* hero photo */}
