@@ -1,0 +1,8 @@
+# Local secrets for Cloudflare Pages Functions run via `wrangler pages dev`.
+# Copy to `.dev.vars` (git-ignored) and fill in. These are read by the
+# functions/ handlers at runtime — the Vite dev server does not run Functions,
+# so the AI endpoints only work under `wrangler pages dev` or on Cloudflare.
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
+# The Functions also read these (mirror your .env.local values):
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key

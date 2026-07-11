@@ -3,6 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ImageUploader from '../components/ImageUploader'
 import { CATEGORY_LIST, DISTRICTS } from '../lib/categories'
+import { MODELS, DEFAULT_MODEL, modelLabel, formatUsd } from '../lib/claudeModels'
+import { generateDraft } from '../lib/aiClient'
+import { recordUsage } from '../hooks/useAiUsage'
 
 const EMPTY = { title: '', location: '', district: '', category: '', content: '', images: [] }
 
@@ -40,6 +43,40 @@ export default function PostEditor() {
   }, [id, isEdit])
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
+
+  // --- AI draft state ---
+  const [ai, setAi] = useState({ model: DEFAULT_MODEL, language: 'english', notes: '' })
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiError, setAiError] = useState(null)
+  const [aiResult, setAiResult] = useState(null)
+  const setAiField = (k) => (e) => setAi((s) => ({ ...s, [k]: e.target.value }))
+
+  const generate = async () => {
+    if (!form.title.trim()) {
+      setAiError('Enter a title first so the AI has something to write about.')
+      return
+    }
+    setAiBusy(true)
+    setAiError(null)
+    try {
+      const r = await generateDraft({
+        model: ai.model,
+        title: form.title,
+        location: form.location,
+        district: form.district,
+        category: form.category,
+        notes: ai.notes,
+        language: ai.language,
+      })
+      setForm((f) => ({ ...f, content: r.draft }))
+      setAiResult(r)
+      recordUsage({ model: r.model, usage: r.usage, cost_usd: r.cost_usd })
+    } catch (e) {
+      setAiError(e.message)
+    } finally {
+      setAiBusy(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -130,6 +167,67 @@ export default function PostEditor() {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* AI draft (Claude) */}
+        <div className="rounded-lg border border-brand/40 bg-brand/5 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-brand">✨ AI draft with Claude</span>
+            {aiResult && (
+              <span className="font-mono text-[11px] text-neutral-500">
+                {modelLabel(ai.model)} · {aiResult.usage.input_tokens} in / {aiResult.usage.output_tokens} out ·{' '}
+                {formatUsd(aiResult.cost_usd)}
+              </span>
+            )}
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-neutral-600">Model</label>
+              <select
+                value={ai.model}
+                onChange={setAiField('model')}
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-brand focus:outline-none"
+              >
+                {MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label} — ${m.in}/${m.out} per 1M tok
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-neutral-600">Language</label>
+              <select
+                value={ai.language}
+                onChange={setAiField('language')}
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-brand focus:outline-none"
+              >
+                <option value="english">English</option>
+                <option value="korean">한국어</option>
+              </select>
+            </div>
+          </div>
+          <textarea
+            rows={2}
+            value={ai.notes}
+            onChange={setAiField('notes')}
+            placeholder="Optional: notes to steer the draft (what to mention, the vibe…)"
+            className="mt-3 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={generate}
+              disabled={aiBusy}
+              className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-60"
+            >
+              {aiBusy ? 'Generating…' : 'Generate draft'}
+            </button>
+            <span className="text-[11px] text-neutral-400">
+              Fills the Description below · usage logged in Admin → AI
+            </span>
+          </div>
+          {aiError && <p className="mt-2 text-sm text-red-600">{aiError}</p>}
         </div>
 
         <div>

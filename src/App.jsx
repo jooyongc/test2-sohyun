@@ -6,6 +6,7 @@ import PostDetail from './pages/PostDetail'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import PostEditor from './pages/PostEditor'
+import AiConsole from './pages/AiConsole'
 
 export default function App() {
   return (
@@ -40,6 +41,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PostEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/ai"
+            element={
+              <ProtectedRoute>
+                <AiConsole />
               </ProtectedRoute>
             }
           />

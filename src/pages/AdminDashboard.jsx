@@ -19,12 +19,20 @@ export default function AdminDashboard() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Link
-          to="/admin/new"
-          className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-        >
-          + New Post
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/admin/ai"
+            className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium hover:bg-neutral-100"
+          >
+            ✨ AI
+          </Link>
+          <Link
+            to="/admin/new"
+            className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+          >
+            + New Post
+          </Link>
+        </div>
       </div>
 
       {loading && <p className="mt-8 text-neutral-400">Loading…</p>}

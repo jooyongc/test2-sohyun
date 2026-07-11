@@ -163,6 +163,30 @@ create policy "anyone can unlike"
   on public.likes for delete
   using (true);
 
+-- ---------------------------------------------------------------------
+-- 6. ai_usage (Claude API token/cost log — admin only)
+-- ---------------------------------------------------------------------
+create table if not exists public.ai_usage (
+  id            uuid primary key default gen_random_uuid(),
+  model         text not null,
+  input_tokens  integer not null default 0,
+  output_tokens integer not null default 0,
+  cost_usd      numeric(10,6) not null default 0,
+  created_at    timestamptz not null default now()
+);
+
+create index if not exists ai_usage_created_at_idx on public.ai_usage (created_at desc);
+
+alter table public.ai_usage enable row level security;
+
+drop policy if exists "authenticated can read ai usage" on public.ai_usage;
+create policy "authenticated can read ai usage"
+  on public.ai_usage for select to authenticated using (true);
+
+drop policy if exists "authenticated can insert ai usage" on public.ai_usage;
+create policy "authenticated can insert ai usage"
+  on public.ai_usage for insert to authenticated with check (true);
+
 -- =====================================================================
 -- Admin account: create it in Dashboard → Authentication → Users → "Add user"
 -- (email + password). There is no public sign-up UI, so that user is the

@@ -8,6 +8,8 @@ media; the **admin** signs in to publish posts and upload photos.
 - **Backend:** Supabase (Postgres + Auth + Storage)
 - **Engagement:** anonymous likes (per-browser), open comments, SNS share
   (Web Share API + X / Facebook / copy link)
+- **AI drafts:** Claude writes post drafts from the admin editor (any Claude model,
+  token/cost tracking) via a Cloudflare Pages Function that keeps the API key server-side
 - **Deploy:** Cloudflare Pages (auto-deploy from GitHub)
 
 ---
@@ -55,6 +57,27 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 5. Deploy. `public/_redirects` handles SPA routing so deep links work on refresh.
 
 Every push to the connected branch triggers an automatic redeploy.
+
+## 3b. AI draft writing (Claude) — optional
+
+The admin editor can generate a post draft with Claude. The Anthropic API key is
+**never** in the frontend — it lives server-side in a Cloudflare Pages Function
+(`functions/api/ai/*`), which only responds to a signed-in admin.
+
+1. Run [`supabase/schema.sql`](supabase/schema.sql) if you haven't (adds the `ai_usage` table).
+2. Create an API key at <https://console.anthropic.com/settings/keys> (starts with `sk-ant-`).
+3. **Cloudflare Pages → Settings → Environment variables** → add `ANTHROPIC_API_KEY`
+   (do **not** prefix with `VITE_`). Redeploy.
+4. In the app: **Admin → ✨ AI** → *Test API key* to confirm it's applied to the site.
+5. In the post editor, pick a model, optionally add notes, and click **Generate draft**.
+   Per-generation tokens + cost show inline; cumulative cost is charted in **Admin → AI**.
+
+> The AI endpoints run on the deployed Cloudflare site (or locally via
+> `npx wrangler pages dev dist` with a `.dev.vars` file) — **not** under `npm run dev`,
+> which serves only the static frontend without Functions.
+>
+> Default model is **Opus 4.8**; all current Claude models are selectable
+> (Fable 5, Opus 4.8/4.7/4.6, Sonnet 5/4.6, Haiku 4.5).
 
 ## 4. Push to GitHub
 
