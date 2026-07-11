@@ -188,6 +188,51 @@ drop policy if exists "authenticated can insert ai usage" on public.ai_usage;
 create policy "authenticated can insert ai usage"
   on public.ai_usage for insert to authenticated with check (true);
 
+-- ---------------------------------------------------------------------
+-- 7. products (Guidebook e-books sold via Gumroad — admin managed)
+-- ---------------------------------------------------------------------
+create table if not exists public.products (
+  id              uuid primary key default gen_random_uuid(),
+  title           text not null,
+  subtitle        text,
+  description     text,
+  price_label     text,                 -- display only; real price lives on Gumroad
+  cover_image_url text,
+  gumroad_url     text not null,
+  published       boolean not null default true,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index if not exists products_created_at_idx on public.products (created_at desc);
+
+drop trigger if exists products_set_updated_at on public.products;
+create trigger products_set_updated_at
+  before update on public.products
+  for each row execute function public.set_updated_at();
+
+alter table public.products enable row level security;
+
+drop policy if exists "public reads published products" on public.products;
+create policy "public reads published products"
+  on public.products for select to anon using (published = true);
+
+drop policy if exists "authenticated reads all products" on public.products;
+create policy "authenticated reads all products"
+  on public.products for select to authenticated using (true);
+
+drop policy if exists "authenticated can insert products" on public.products;
+create policy "authenticated can insert products"
+  on public.products for insert to authenticated with check (true);
+
+drop policy if exists "authenticated can update products" on public.products;
+create policy "authenticated can update products"
+  on public.products for update to authenticated using (true) with check (true);
+
+drop policy if exists "authenticated can delete products" on public.products;
+create policy "authenticated can delete products"
+  on public.products for delete to authenticated using (true);
+
 -- =====================================================================
 -- Admin account: create it in Dashboard → Authentication → Users → "Add user"
 -- (email + password). There is no public sign-up UI, so that user is the

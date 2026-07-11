@@ -7,6 +7,9 @@ import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import PostEditor from './pages/PostEditor'
 import AiConsole from './pages/AiConsole'
+import Guidebook from './pages/Guidebook'
+import ProductsAdmin from './pages/ProductsAdmin'
+import ProductEditor from './pages/ProductEditor'
 
 export default function App() {
   return (
@@ -17,6 +20,7 @@ export default function App() {
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/guidebook" element={<Guidebook />} />
           <Route path="/login" element={<Login />} />
 
           {/* Admin (protected) */}
@@ -49,6 +53,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AiConsole />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute>
+                <ProductsAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products/new"
+            element={
+              <ProtectedRoute>
+                <ProductEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products/edit/:id"
+            element={
+              <ProtectedRoute>
+                <ProductEditor />
               </ProtectedRoute>
             }
           />

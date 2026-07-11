@@ -21,6 +21,12 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-2">
           <Link
+            to="/admin/products"
+            className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium hover:bg-neutral-100"
+          >
+            📕 Guidebooks
+          </Link>
+          <Link
             to="/admin/ai"
             className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium hover:bg-neutral-100"
           >

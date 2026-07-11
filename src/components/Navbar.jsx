@@ -44,8 +44,16 @@ export default function Navbar() {
             Gallery
           </NavLink>
 
+          <NavLink
+            to="/guidebook"
+            className={({ isActive }) =>
+              `${pillBase} ${isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`
+            }
+          >
+            Guidebook
+          </NavLink>
+
           {/* Design nav placeholders (no pages yet) */}
-          <span className={`${pillBase} text-faint cursor-default`}>Map</span>
           <span className={`${pillBase} text-faint cursor-default`}>About</span>
 
           {user ? (
