@@ -6,7 +6,7 @@ import { useState } from 'react'
 export default function ShareButtons({ title, url }) {
   const [copied, setCopied] = useState(false)
   const shareUrl = url ?? (typeof window !== 'undefined' ? window.location.href : '')
-  const text = title ? `${title} — Hongdae Travel` : 'Hongdae Travel'
+  const text = title ? `${title} — LoveandSeoul` : 'LoveandSeoul'
 
   const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 

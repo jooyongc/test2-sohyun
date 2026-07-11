@@ -8,7 +8,7 @@ export default function Home() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <section className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Hongdae <span className="text-brand">Travel</span>
+          Loveand<span className="text-brand">Seoul</span>
         </h1>
         <p className="mt-2 max-w-2xl text-neutral-500">
           A gallery of places, food, and moments around Hongdae, Seoul.

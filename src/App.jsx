@@ -57,7 +57,7 @@ export default function App() {
       </main>
 
       <footer className="mt-12 border-t border-neutral-200 py-8 text-center text-sm text-neutral-400">
-        Hongdae Travel · Built with React, Vite & Supabase
+        LoveandSeoul · Built with React, Vite & Supabase
       </footer>
     </div>
   )

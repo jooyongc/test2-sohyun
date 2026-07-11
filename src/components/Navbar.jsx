@@ -15,10 +15,10 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm font-bold text-white">
-            H
+            L
           </span>
           <span className="text-lg font-semibold tracking-tight">
-            Hongdae <span className="text-brand">Travel</span>
+            Loveand<span className="text-brand">Seoul</span>
           </span>
         </Link>
 
