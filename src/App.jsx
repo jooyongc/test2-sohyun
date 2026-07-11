@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import TopBanner from './components/TopBanner'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
@@ -10,10 +11,12 @@ import AiConsole from './pages/AiConsole'
 import Guidebook from './pages/Guidebook'
 import ProductsAdmin from './pages/ProductsAdmin'
 import ProductEditor from './pages/ProductEditor'
+import SubscribersAdmin from './pages/SubscribersAdmin'
 
 export default function App() {
   return (
     <div className="min-h-screen">
+      <TopBanner />
       <Navbar />
       <main>
         <Routes>
@@ -77,6 +80,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ProductEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/subscribers"
+            element={
+              <ProtectedRoute>
+                <SubscribersAdmin />
               </ProtectedRoute>
             }
           />

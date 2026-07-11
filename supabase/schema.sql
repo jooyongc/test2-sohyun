@@ -233,6 +233,34 @@ drop policy if exists "authenticated can delete products" on public.products;
 create policy "authenticated can delete products"
   on public.products for delete to authenticated using (true);
 
+-- ---------------------------------------------------------------------
+-- 8. subscribers (email list for the "Seoul checklist" lead magnet)
+--    Public may subscribe; only the admin can read/export (privacy).
+-- ---------------------------------------------------------------------
+create table if not exists public.subscribers (
+  id         uuid primary key default gen_random_uuid(),
+  email      text not null,
+  source     text,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists subscribers_email_lower_idx
+  on public.subscribers (lower(email));
+
+alter table public.subscribers enable row level security;
+
+drop policy if exists "anyone can subscribe" on public.subscribers;
+create policy "anyone can subscribe"
+  on public.subscribers for insert with check (true);
+
+drop policy if exists "authenticated reads subscribers" on public.subscribers;
+create policy "authenticated reads subscribers"
+  on public.subscribers for select to authenticated using (true);
+
+drop policy if exists "authenticated deletes subscribers" on public.subscribers;
+create policy "authenticated deletes subscribers"
+  on public.subscribers for delete to authenticated using (true);
+
 -- =====================================================================
 -- Admin account: create it in Dashboard → Authentication → Users → "Add user"
 -- (email + password). There is no public sign-up UI, so that user is the
