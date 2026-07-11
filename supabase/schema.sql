@@ -96,6 +96,71 @@ create policy "authenticated can delete post images"
   to authenticated
   using (bucket_id = 'post-images');
 
+-- ---------------------------------------------------------------------
+-- 4. comments table (anonymous visitors may comment; admin moderates)
+-- ---------------------------------------------------------------------
+create table if not exists public.comments (
+  id          uuid primary key default gen_random_uuid(),
+  post_id     uuid not null references public.posts (id) on delete cascade,
+  author_name text not null,
+  body        text not null,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists comments_post_id_idx
+  on public.comments (post_id, created_at);
+
+alter table public.comments enable row level security;
+
+drop policy if exists "comments are viewable by everyone" on public.comments;
+create policy "comments are viewable by everyone"
+  on public.comments for select
+  using (true);
+
+-- Anyone (anon or authenticated) may post a comment.
+drop policy if exists "anyone can add a comment" on public.comments;
+create policy "anyone can add a comment"
+  on public.comments for insert
+  with check (true);
+
+-- Only the admin (authenticated) may delete/moderate comments.
+drop policy if exists "authenticated can delete comments" on public.comments;
+create policy "authenticated can delete comments"
+  on public.comments for delete
+  to authenticated
+  using (true);
+
+-- ---------------------------------------------------------------------
+-- 5. likes table (anonymous, one like per browser via a client visitor id)
+-- ---------------------------------------------------------------------
+create table if not exists public.likes (
+  id         uuid primary key default gen_random_uuid(),
+  post_id    uuid not null references public.posts (id) on delete cascade,
+  visitor_id text not null,                     -- random UUID stored in localStorage
+  created_at timestamptz not null default now(),
+  unique (post_id, visitor_id)                  -- prevents double-likes per browser
+);
+
+create index if not exists likes_post_id_idx on public.likes (post_id);
+
+alter table public.likes enable row level security;
+
+drop policy if exists "likes are viewable by everyone" on public.likes;
+create policy "likes are viewable by everyone"
+  on public.likes for select
+  using (true);
+
+-- Anyone may like (insert) and unlike (delete) — toggle behavior.
+drop policy if exists "anyone can like" on public.likes;
+create policy "anyone can like"
+  on public.likes for insert
+  with check (true);
+
+drop policy if exists "anyone can unlike" on public.likes;
+create policy "anyone can unlike"
+  on public.likes for delete
+  using (true);
+
 -- =====================================================================
 -- Admin account: create it in Dashboard → Authentication → Users → "Add user"
 -- (email + password). There is no public sign-up UI, so that user is the

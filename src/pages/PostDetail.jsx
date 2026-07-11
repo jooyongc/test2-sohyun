@@ -3,6 +3,9 @@ import { Link, useParams } from 'react-router-dom'
 import { usePost } from '../hooks/usePosts'
 import { useAuth } from '../context/AuthContext'
 import Lightbox from '../components/Lightbox'
+import LikeButton from '../components/LikeButton'
+import ShareButtons from '../components/ShareButtons'
+import Comments from '../components/Comments'
 
 export default function PostDetail() {
   const { id } = useParams()
@@ -70,6 +73,12 @@ export default function PostDetail() {
         </p>
       )}
 
+      {/* Engagement: like + SNS share */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-neutral-200 py-4">
+        <LikeButton postId={post.id} />
+        <ShareButtons title={post.title} />
+      </div>
+
       {images.length > 0 && (
         <div className="masonry mt-6 columns-1 sm:columns-2">
           {images.map((src, i) => (
@@ -96,6 +105,8 @@ export default function PostDetail() {
         onPrev={prev}
         onNext={next}
       />
+
+      <Comments postId={post.id} />
     </article>
   )
 }

@@ -58,10 +58,40 @@ git 저장소도 아니었다. Supabase 프로젝트, GitHub 저장소, Cloudfla
 > MVP는 `images text[]`로 단순화. 이미지별 캡션/정렬이 필요해지면 `post_images`
 > 정규화 테이블로 확장.
 
+### `comments` 테이블 (댓글)
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| `id` | uuid PK | 댓글 ID |
+| `post_id` | uuid FK → `posts.id` (`on delete cascade`) | 대상 게시물 |
+| `author_name` | text NOT NULL | 작성자 표시 이름 |
+| `body` | text NOT NULL | 댓글 내용 |
+| `created_at` | timestamptz default `now()` | 작성일 |
+
+> 방문자 계정이 없으므로 **익명 댓글**(이름 + 내용). 스팸 방지는 향후 과제(캡차/신고).
+
+### `likes` 테이블 (좋아요)
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| `id` | uuid PK | 좋아요 ID |
+| `post_id` | uuid FK → `posts.id` (`on delete cascade`) | 대상 게시물 |
+| `visitor_id` | text NOT NULL | 브라우저 식별자(localStorage UUID) |
+| `created_at` | timestamptz default `now()` | 생성일 |
+| — | `unique(post_id, visitor_id)` | 브라우저당 1회 좋아요 보장 |
+
+> 로그인 없이 **브라우저 단위 토글**. 좋아요 수는 `count(*)`, 내 상태는 `visitor_id`
+> 일치 행 존재 여부로 판단.
+
 ### RLS (Row Level Security) 정책
-- `posts`: **공개 읽기**(anon `SELECT` 허용), **쓰기(INSERT/UPDATE/DELETE)는
-  `authenticated`만** 허용.
+- `posts`: **공개 읽기**, **쓰기(INSERT/UPDATE/DELETE)는 `authenticated`만**.
 - Storage 버킷 `post-images`: **공개 읽기**, **업로드/수정/삭제는 authenticated만**.
+- `comments`: **공개 읽기 + 공개 INSERT(익명 작성)**, **DELETE는 `authenticated`만**(관리자 모더레이션).
+- `likes`: **공개 읽기 + 공개 INSERT/DELETE**(익명 토글).
+
+### SNS 공유 (DB 불필요, 프론트엔드)
+- **Web Share API**(`navigator.share`) 우선 — 모바일에서 OS 공유 시트로 **카카오톡·
+  인스타그램 등 설치된 모든 SNS** 공유 가능.
+- 데스크톱 폴백: **X(Twitter)**, **Facebook** 공유 인텐트 링크 + **링크 복사**.
+- 카카오톡 전용 인앱 공유 버튼이 필요하면 Kakao JS SDK + 앱 키 등록으로 확장(선택).
 
 ### 관리자 계정
 - Supabase Auth의 Email/Password로 관리자 1명 생성(대시보드에서 생성).
@@ -80,7 +110,8 @@ test2-sohyun/  (repo root)
 │   ├── App.jsx               # 라우터 정의 + 레이아웃(Navbar/Footer)
 │   ├── index.css             # Tailwind 지시자 + masonry 유틸
 │   ├── lib/
-│   │   └── supabase.js       # Supabase 클라이언트 + 버킷 상수
+│   │   ├── supabase.js       # Supabase 클라이언트 + 버킷 상수
+│   │   └── visitor.js        # 익명 좋아요용 브라우저 visitor_id
 │   ├── context/
 │   │   └── AuthContext.jsx   # 로그인 세션 상태
 │   ├── components/
@@ -89,15 +120,20 @@ test2-sohyun/  (repo root)
 │   │   ├── PostCard.jsx      # 카드 1개
 │   │   ├── Lightbox.jsx      # 이미지 확대 뷰어
 │   │   ├── ImageUploader.jsx # Storage 업로드
+│   │   ├── LikeButton.jsx    # 좋아요 토글 + 카운트
+│   │   ├── ShareButtons.jsx  # SNS 공유 (Web Share + X/FB/링크복사)
+│   │   ├── Comments.jsx      # 댓글 목록 + 작성 폼
 │   │   └── ProtectedRoute.jsx
 │   ├── pages/
 │   │   ├── Home.jsx          # 갤러리 홈
-│   │   ├── PostDetail.jsx    # 상세(사진+글+라이트박스)
+│   │   ├── PostDetail.jsx    # 상세(사진+글+좋아요+공유+댓글)
 │   │   ├── Login.jsx         # 관리자 로그인
 │   │   ├── AdminDashboard.jsx# 게시물 목록/삭제
 │   │   └── PostEditor.jsx    # 작성/수정
 │   └── hooks/
-│       └── usePosts.js       # 게시물 조회 훅(usePosts / usePost)
+│       ├── usePosts.js       # 게시물 조회 훅(usePosts / usePost)
+│       ├── useComments.js    # 댓글 조회/작성/삭제
+│       └── useLikes.js       # 좋아요 카운트/토글
 ├── supabase/
 │   └── schema.sql            # 테이블 + RLS + 버킷 정책 SQL
 ├── docs/
@@ -143,6 +179,9 @@ VITE_SUPABASE_ANON_KEY=...
 - **Phase 4 — 관리자(등록) 기능**: `Login`(Supabase Auth), `ProtectedRoute`,
   `PostEditor`, `ImageUploader`(Storage 업로드), `AdminDashboard`. ✅
 - **Phase 5 — 배포 설정**: `public/_redirects`, `npm run build` 검증. ✅
+- **Phase 6 — 참여 기능(댓글/좋아요/공유)**: `comments`·`likes` 테이블 + RLS,
+  `useComments`/`useLikes` 훅, `lib/visitor.js`, `Comments`/`LikeButton`/
+  `ShareButtons` 컴포넌트, `PostDetail`에 통합. ✅
 
 ---
 
@@ -173,11 +212,17 @@ VITE_SUPABASE_ANON_KEY=...
 - **읽기 흐름**: 샘플 게시물 insert 후 홈 그리드/상세 페이지 표시 확인. (Supabase 연동 후)
 - **인증 흐름**: `/login` 관리자 로그인 → `/admin/new`에서 이미지 업로드 + 게시물 작성 →
   홈 노출 확인. 비로그인 시 `/admin/*` 접근 차단 확인. (Supabase 연동 후)
-- **RLS 확인**: 비로그인(anon) insert 시도 거부 확인. (Supabase 연동 후)
+- **RLS 확인**: 비로그인(anon)의 `posts` insert 거부 확인. (Supabase 연동 후)
+- **참여 기능**: 상세 페이지에서 좋아요 토글(새로고침 후 유지) · 댓글 작성/표시 ·
+  관리자 로그인 시 댓글 삭제 · SNS 공유(모바일 공유 시트 / 데스크톱 X·FB·링크복사) 확인.
 - **배포**: Cloudflare Pages URL에서 홈/상세 및 SPA 라우팅(새로고침) 확인.
 
 ## 리스크 / 참고
 - **비밀키**: `service_role` key는 절대 프론트엔드에 넣지 않는다. anon key + RLS만 사용.
 - **SPA 라우팅**: `_redirects` 없으면 딥링크 새로고침 시 404 → 필수.
 - **이미지 최적화**: MVP는 원본 업로드. 추후 리사이즈/썸네일 최적화 고려.
-- **범위**: 관리자 1인 기준. 다중 작성자/댓글/좋아요는 향후 확장 항목.
+- **익명 댓글/좋아요 스팸**: `comments` INSERT와 `likes` INSERT/DELETE가 anon에 열려
+  있어 악용 여지 있음. 향후 캡차/rate limit/신고·모더레이션, Edge Function 검증 등 고려.
+- **좋아요 정확도**: `visitor_id`는 브라우저 localStorage 기반이라 브라우저/기기가
+  바뀌면 재좋아요 가능(정밀 집계는 계정 도입 시). MVP 수용 범위.
+- **범위**: 관리자 1인 기준. 다중 작성자, 답글/대댓글, 알림은 향후 확장 항목.
