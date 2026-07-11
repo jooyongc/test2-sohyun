@@ -7,17 +7,23 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-neutral-50 text-neutral-900 antialiased;
+    @apply bg-paper text-ink antialiased;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
   }
 }
 
 @layer components {
   /* Masonry-style gallery using CSS multi-columns */
   .masonry {
-    column-gap: 1rem;
+    column-gap: 1.5rem;
   }
   .masonry > * {
     break-inside: avoid;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  /* Uppercase mono label used throughout the editorial UI */
+  .mono-label {
+    @apply font-mono uppercase;
+    letter-spacing: 0.14em;
   }
 }

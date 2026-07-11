@@ -1,5 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+
+// Wordmark: "LOVE and SEOUL" with SEOUL in rose (per design handoff).
+function Wordmark({ size = 18 }) {
+  return (
+    <span className="font-bold tracking-[-0.02em]" style={{ fontSize: size }}>
+      LOVE and <span className="text-brand">SEOUL</span>
+    </span>
+  )
+}
+
+const pillBase = 'rounded-full px-3.5 py-[7px] text-xs font-semibold transition'
 
 export default function Navbar() {
   const { user, signOut } = useAuth()
@@ -11,41 +22,60 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/80 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm font-bold text-white">
-            L
+    <header className="sticky top-0 z-20 border-b-2 border-ink bg-white">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+        {/* Brand */}
+        <Link to="/" className="flex items-center gap-2.5">
+          <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-brand text-[15px] font-bold text-white">
+            ♥
           </span>
-          <span className="text-lg font-semibold tracking-tight">
-            Loveand<span className="text-brand">Seoul</span>
-          </span>
+          <Wordmark />
         </Link>
 
-        <div className="flex items-center gap-4 text-sm">
-          <Link to="/" className="text-neutral-600 hover:text-neutral-900">
+        {/* Pill nav */}
+        <div className="flex items-center gap-2">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `${pillBase} ${isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`
+            }
+          >
             Gallery
-          </Link>
+          </NavLink>
+
+          {/* Design nav placeholders (no pages yet) */}
+          <span className={`${pillBase} text-faint cursor-default`}>Map</span>
+          <span className={`${pillBase} text-faint cursor-default`}>About</span>
+
           {user ? (
             <>
-              <Link to="/admin" className="text-neutral-600 hover:text-neutral-900">
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `${pillBase} ${isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`
+                }
+              >
                 Dashboard
-              </Link>
+              </NavLink>
               <Link
                 to="/admin/new"
-                className="rounded-md bg-brand px-3 py-1.5 font-medium text-white hover:bg-brand-dark"
+                className={`${pillBase} bg-brand text-white hover:bg-brand-dark`}
               >
                 New Post
               </Link>
               <button
                 onClick={handleSignOut}
-                className="text-neutral-500 hover:text-neutral-900"
+                className="rounded-full border-[1.5px] border-ink px-3.5 py-[6px] font-mono text-[11px] uppercase tracking-[0.08em] hover:bg-ink hover:text-white"
               >
                 Sign out
               </button>
             </>
           ) : (
-            <Link to="/login" className="text-neutral-600 hover:text-neutral-900">
+            <Link
+              to="/login"
+              className="rounded-full border-[1.5px] border-ink px-3.5 py-[6px] font-mono text-[11px] uppercase tracking-[0.08em] hover:bg-ink hover:text-white"
+            >
               Admin
             </Link>
           )}

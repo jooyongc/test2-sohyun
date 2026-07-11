@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ImageUploader from '../components/ImageUploader'
+import { CATEGORY_LIST, DISTRICTS } from '../lib/categories'
 
-const EMPTY = { title: '', location: '', content: '', images: [] }
+const EMPTY = { title: '', location: '', district: '', category: '', content: '', images: [] }
 
 export default function PostEditor() {
   const { id } = useParams() // present when editing
@@ -29,6 +30,8 @@ export default function PostEditor() {
           setForm({
             title: data.title ?? '',
             location: data.location ?? '',
+            district: data.district ?? '',
+            category: data.category ?? '',
             content: data.content ?? '',
             images: data.images ?? [],
           })
@@ -46,6 +49,8 @@ export default function PostEditor() {
     const payload = {
       title: form.title.trim(),
       location: form.location.trim() || null,
+      district: form.district || null,
+      category: form.category || null,
       content: form.content.trim() || null,
       images: form.images,
       cover_image_url: form.images[0] ?? null,
@@ -89,9 +94,42 @@ export default function PostEditor() {
           <input
             value={form.location}
             onChange={update('location')}
-            placeholder="e.g. Hongik University Station Exit 9"
+            placeholder="e.g. Yeonnam-dong 239-11"
             className="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium">Area (district)</label>
+            <select
+              value={form.district}
+              onChange={update('district')}
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            >
+              <option value="">— Select area —</option>
+              {DISTRICTS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Category</label>
+            <select
+              value={form.category}
+              onChange={update('category')}
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            >
+              <option value="">— Select category —</option>
+              {CATEGORY_LIST.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.emoji} {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div>

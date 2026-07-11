@@ -22,6 +22,9 @@ pnpm-debug.log*
 !.vscode/extensions.json
 .idea/
 .claude/
+
+# Design handoff bundles (kept out of the app repo)
+*-handoff.zip
 .DS_Store
 Thumbs.db
 *.suo

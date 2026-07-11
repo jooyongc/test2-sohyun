@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 // SNS sharing. On mobile the native share sheet (navigator.share) exposes all
 // installed apps — KakaoTalk, Instagram, etc. Explicit X / Facebook / Copy-link
-// buttons are the desktop fallback.
+// buttons are the desktop fallback. Styled as outline pills per design.
 export default function ShareButtons({ title, url }) {
   const [copied, setCopied] = useState(false)
   const shareUrl = url ?? (typeof window !== 'undefined' ? window.location.href : '')
@@ -33,32 +33,23 @@ export default function ShareButtons({ title, url }) {
   )}&url=${encodeURIComponent(shareUrl)}`
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
 
-  const btn =
-    'inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-2 text-sm text-neutral-600 hover:bg-neutral-100'
+  const pill =
+    'inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink px-5 py-[11px] text-[13px] font-semibold text-ink transition hover:bg-ink hover:text-white'
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-3">
       {canNativeShare && (
-        <button onClick={nativeShare} className={btn} aria-label="Share">
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
-          </svg>
-          Share
+        <button onClick={nativeShare} className={pill} aria-label="Share">
+          Share ↗
         </button>
       )}
-
-      <a href={xUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+      <a href={xUrl} target="_blank" rel="noopener noreferrer" className={pill}>
         <span className="font-bold">X</span>
       </a>
-
-      <a href={fbUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+      <a href={fbUrl} target="_blank" rel="noopener noreferrer" className={pill}>
         Facebook
       </a>
-
-      <button onClick={copyLink} className={btn}>
+      <button onClick={copyLink} className={pill}>
         {copied ? '✓ Copied' : 'Copy link'}
       </button>
     </div>

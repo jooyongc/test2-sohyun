@@ -11,6 +11,8 @@ create table if not exists public.posts (
   title           text not null,
   content         text,
   location        text,
+  district        text,                          -- e.g. 'Hongdae','Euljiro','Seongsu'
+  category        text,                          -- e.g. 'eats','cafes','streets','music','shops','outdoors'
   cover_image_url text,
   images          text[] not null default '{}',
   created_at      timestamptz not null default now(),
