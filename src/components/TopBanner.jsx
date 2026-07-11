@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { subscribeEmail } from '../lib/subscribe'
 
 const KEY = 'checklist_banner'
@@ -6,6 +7,7 @@ const KEY = 'checklist_banner'
 // Full-width top strip: "First time in Seoul? Get the free checklist by email."
 // Captures the email into Supabase. Hides after subscribe/dismiss (localStorage).
 export default function TopBanner() {
+  const { pathname } = useLocation()
   const [hidden, setHidden] = useState(() => {
     try {
       return !!localStorage.getItem(KEY)
@@ -16,6 +18,7 @@ export default function TopBanner() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | loading | done | dup | error
 
+  if (pathname !== '/') return null // home page only
   if (hidden) return null
 
   const dismiss = () => {
@@ -52,15 +55,15 @@ export default function TopBanner() {
         {subscribed ? (
           <span className="font-semibold">
             {status === 'done'
-              ? '✅ 등록 완료! 곧 서울여행 체크리스트를 이메일로 보내드릴게요.'
-              : '이미 등록된 이메일이에요 — 감사합니다! 🙌'}
+              ? "✅ You're in! We'll email your free Seoul travel checklist shortly."
+              : "You're already on the list — thank you! 🙌"}
           </span>
         ) : (
           <>
             <span className="font-semibold">
-              서울이 처음이세요?{' '}
+              First time in Seoul?{' '}
               <span className="font-normal opacity-90">
-                서울여행 체크리스트를 무료로 이메일로 받아보세요
+                Get our free Seoul travel checklist by email.
               </span>
             </span>
             <form onSubmit={submit} className="flex items-center gap-2">
@@ -77,11 +80,11 @@ export default function TopBanner() {
                 disabled={status === 'loading'}
                 className="whitespace-nowrap rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-60"
               >
-                {status === 'loading' ? '…' : '무료로 받기'}
+                {status === 'loading' ? '…' : 'Get it free'}
               </button>
             </form>
             {status === 'error' && (
-              <span className="text-white/90">문제가 발생했어요. 다시 시도해주세요.</span>
+              <span className="text-white/90">Something went wrong. Please try again.</span>
             )}
           </>
         )}
