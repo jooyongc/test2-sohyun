@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback:
+# serve index.html for any path so client-side routes (e.g. /posts/:id) work on refresh.
+/*    /index.html   200
