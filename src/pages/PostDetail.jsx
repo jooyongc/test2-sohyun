@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { usePost } from '../hooks/usePosts'
+import { useRelatedPosts } from '../hooks/useRelatedPosts'
 import { useAuth } from '../context/AuthContext'
 import Lightbox from '../components/Lightbox'
+import GalleryGrid from '../components/GalleryGrid'
 import LikeButton from '../components/LikeButton'
 import ShareButtons from '../components/ShareButtons'
 import Comments from '../components/Comments'
@@ -11,6 +13,7 @@ import { getCategory } from '../lib/categories'
 export default function PostDetail() {
   const { id } = useParams()
   const { post, loading, error } = usePost(id)
+  const { related, sameDistrict } = useRelatedPosts(post)
   const { user } = useAuth()
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
@@ -131,27 +134,19 @@ export default function PostDetail() {
           <ShareButtons title={post.title} />
         </div>
 
-        {/* gallery grid */}
-        {images.length > 0 && (
-          <div className="px-6 pb-10 pt-9 sm:px-10">
-            <span className="font-mono text-[12px] font-bold uppercase tracking-[0.14em] text-ink">
-              The gallery — {images.length} photo{images.length > 1 ? 's' : ''}
-            </span>
-            <div className="mt-4 grid grid-cols-3 gap-4 [grid-auto-rows:135px]">
-              {images.map((src, i) => (
-                <button
-                  key={src + i}
-                  onClick={() => showAt(i)}
-                  className={`overflow-hidden rounded-xl border-[1.5px] border-ink ${i === 0 ? 'row-span-2' : ''}`}
-                >
-                  <img
-                    src={src}
-                    alt={`${post.title} ${i + 1}`}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition hover:opacity-90"
-                  />
-                </button>
-              ))}
+        {/* more posts — keep exploring the same area */}
+        {related.length > 0 && (
+          <div className="border-t border-hairline px-6 pb-4 pt-9 sm:px-10">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[12px] font-bold uppercase tracking-[0.14em] text-ink">
+                {sameDistrict ? `More in ${post.district}` : 'More stories'}
+              </span>
+              <Link to="/" className="text-xs text-neutral-500 hover:text-brand">
+                All spots →
+              </Link>
+            </div>
+            <div className="mt-4">
+              <GalleryGrid posts={related} />
             </div>
           </div>
         )}
